@@ -1,0 +1,34 @@
+# relayhost= is not set or commented
+myhostname = sofia.kibik.org
+mynetworks = 0.0.0.0/0, 127.0.0.0/8
+myorigin = $myhostname
+inet_interfaces = all
+inet_protocols = ipv4
+mydestination = $myhostname, localhost
+smtpd_banner = $myhostname ESMTP
+# relay_domains is not set or commented
+# smtp_fallback_relay is not set or commented
+smtpd_client_connection_count_limit = 10
+compatibility_level = 3.6
+maillog_file = /var/log/postfix.log
+virtual_alias_domains = sofia.kibik.org
+virtual_alias_maps = lmdb:/etc/postfix/virtual
+transport_maps = lmdb:/etc/postfix/transport
+virtual_transport = transport:
+
+# smtp_tls_mandatory_protocols= is not set due to SMTPD_USE_TLS=no
+# smtp_tls_mandatory_protocols= is not set due to SMTPD_USE_TLS=no
+# smtp_tls_cert_file= is not set due to SMTPD_USE_TLS=no
+# smtp_tls_key_file= is not set due to SMTPD_USE_TLS=no
+# smtp_tls_session_cache_database= is not set due to SMTPD_USE_TLS=no
+# smtp_tls_security_level= is not set due to SMTPD_USE_TLS=no
+# smtp_tls_auth_only= is not set due to SMTPD_USE_TLS=no
+
+
+# smtpd_tls_mandatory_protocols= is not set due to SMTPD_USE_TLS=no
+# smtpd_tls_mandatory_protocols= is not set due to SMTPD_USE_TLS=no
+# smtpd_tls_cert_file= is not set due to SMTPD_USE_TLS=no
+# smtpd_tls_key_file= is not set due to SMTPD_USE_TLS=no
+# smtpd_tls_session_cache_database= is not set due to SMTPD_USE_TLS=no
+# smtpd_tls_security_level= is not set due to SMTPD_USE_TLS=no
+# smtpd_tls_auth_only= is not set due to SMTPD_USE_TLS=no
