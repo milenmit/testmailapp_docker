@@ -59,19 +59,6 @@ def decode_unicode_escape(data):
         return {key: decode_unicode_escape(value) for key, value in data.items()}
     return data
 
-def replace_hyphens_in_keys(data):
-    """Recursively replace hyphens with underscores in JSON keys."""
-    if isinstance(data, dict):
-        new_data = {}
-        for key, value in data.items():
-            new_key = key.replace('-', '_')
-            new_data[new_key] = replace_hyphens_in_keys(value)
-        return new_data
-    elif isinstance(data, list):
-        return [replace_hyphens_in_keys(item) for item in data]
-    else:
-        return data
-
 def json_serial(obj):
     """JSON serializer for objects not serializable by default json code."""
     if isinstance(obj, datetime):
@@ -107,11 +94,6 @@ def get_emails():
             count_sql = "SELECT COUNT(*) as count FROM emails WHERE to_email = %s"
             cursor.execute(count_sql, (to_email,))
             total_count = cursor.fetchone()['count']
-
-            # Query to get the total email count in the database
-            total_email_count_sql = "SELECT COUNT(*) as total_email_count FROM emails"
-            cursor.execute(total_email_count_sql)
-            total_email_count = cursor.fetchone()['total_email_count']
 
             # Query to get emails with sorting, limit, and offset
             sql = f"SELECT * FROM emails WHERE to_email = %s ORDER BY received_time {sort_order}"
@@ -152,9 +134,9 @@ def get_emails():
                     part['content'] = decode_unicode_escape(part['content'])
 
                 email_info = {
-                    "email": replace_hyphens_in_keys(email),
-                    "parts": replace_hyphens_in_keys(parts),
-                    "attachments": replace_hyphens_in_keys(attachments)
+                    "email": email,
+                    "parts": parts,
+                    "attachments": attachments
                 }
                 email_data.append(email_info)
 
@@ -162,7 +144,6 @@ def get_emails():
                 "count": total_count,
                 "limit": limit,
                 "offset": offset,
-                "total_email_count": total_email_count,
                 "emails": email_data
             }
 
