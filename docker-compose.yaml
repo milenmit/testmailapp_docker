@@ -25,9 +25,9 @@ services:
     restart: always
     environment:
      MYSQL_DATABASE: 'emails'
-     MYSQL_USER: 'umsbgqa'
-     MYSQL_PASSWORD: 'Secret123!'
-     MYSQL_ROOT_PASSWORD: 'Secret123!'
+     MYSQL_USER: ''
+     MYSQL_PASSWORD: ''
+     MYSQL_ROOT_PASSWORD: ''
     ports:
       - '3306:3306'
     expose:
