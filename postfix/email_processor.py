@@ -23,9 +23,9 @@ logging.basicConfig(level=logging.DEBUG, filename="/tmp/email_processor.log", fi
 # Database connection pool
 pool = PooledDB(
     creator=pymysql,
-    host='',
-    user='',
-    password='!',
+    host='host',
+    user='user',
+    password='pass',
     database='emails',
     autocommit=True,
     charset='utf8mb4',

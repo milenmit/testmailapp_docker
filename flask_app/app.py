@@ -6,16 +6,17 @@ import json
 from datetime import datetime
 from functools import wraps
 import html
+import decimal
 
 app = Flask(__name__)
 
 # Database connection pool
 pool = PooledDB(
     creator=pymysql,
-    host='',
-    user='',
-    password='!',
-    database='',
+    host='host',
+    user='user',
+    password='pass',
+    database='emails',
     autocommit=True,
     charset='utf8mb4',
     cursorclass=pymysql.cursors.DictCursor,
@@ -76,6 +77,8 @@ def json_serial(obj):
     """JSON serializer for objects not serializable by default json code."""
     if isinstance(obj, datetime):
         return obj.isoformat()
+    if isinstance(obj, decimal.Decimal):
+        return float(obj)
     raise TypeError("Type not serializable")
 
 @app.route('/emails', methods=['GET'])
@@ -107,11 +110,6 @@ def get_emails():
             count_sql = "SELECT COUNT(*) as count FROM emails WHERE to_email = %s"
             cursor.execute(count_sql, (to_email,))
             total_count = cursor.fetchone()['count']
-
-            # Query to get the total email count in the database
-            total_email_count_sql = "SELECT COUNT(*) as total_email_count FROM emails"
-            cursor.execute(total_email_count_sql)
-            total_email_count = cursor.fetchone()['total_email_count']
 
             # Query to get emails with sorting, limit, and offset
             sql = f"SELECT * FROM emails WHERE to_email = %s ORDER BY received_time {sort_order}"
@@ -162,7 +160,6 @@ def get_emails():
                 "count": total_count,
                 "limit": limit,
                 "offset": offset,
-                "total_email_count": total_email_count,
                 "emails": email_data
             }
 
@@ -212,6 +209,41 @@ def delete_all_emails():
             connection.commit()
 
             return jsonify({"message": "All emails deleted successfully"}), 200
+    finally:
+        connection.close()
+
+@app.route('/emails/stats', methods=['GET'])
+@require_api_key
+def get_email_stats():
+    connection = pool.connection()
+    try:
+        with connection.cursor() as cursor:
+            # Query to get the total email count in the database
+            total_email_count_sql = "SELECT COUNT(*) as total_email_count FROM emails"
+            cursor.execute(total_email_count_sql)
+            total_email_count = cursor.fetchone()['total_email_count']
+
+            # Query to get the size of the database in MB
+            database_size_sql = """
+            SELECT table_schema AS database_name,
+                   ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS size_mb
+            FROM information_schema.tables
+            WHERE table_schema = 'emails'
+            GROUP BY table_schema
+            """
+            cursor.execute(database_size_sql)
+            database_size = cursor.fetchone()['size_mb']
+
+            stats = {
+                "total_email_count": total_email_count,
+                "database_size_mb": database_size
+            }
+
+            response = app.response_class(
+                response=json.dumps(stats, default=json_serial, indent=4),
+                mimetype='application/json'
+            )
+            return response
     finally:
         connection.close()
 
