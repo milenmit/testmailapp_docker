@@ -30,7 +30,6 @@ Example:
 
 curl -X DELETE "http://localhost:5000/emails/1?api_key=YourSecretApiKey"
 
-
 Delete All Emails
 
 URL: /emails
