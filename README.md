@@ -59,3 +59,7 @@ To secure the API:</p>
 <p class="has-line-data" data-line-start="54" data-line-end="57">Use a strong, unique API_KEY.<br>
 Implement HTTPS to encrypt data between clients and the server.<br>
 Restrict access to the API by IP address if possible.</p>
+
+## TO DO ##
+Avoid using it on prod, API KEY  in URL is far away from best practise , better to be in header.
+Also use nginx as reverse proxy for examle but not open port 5000 outside.
