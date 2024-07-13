@@ -10,7 +10,7 @@ smtpd_banner = $myhostname ESMTP
 # smtp_fallback_relay is not set or commented
 smtpd_client_connection_count_limit = 10
 compatibility_level = 3.6
-maillog_file = /var/log/postfix.log
+maillog_file = /var/log/postfix/postfix.log
 virtual_alias_domains = sofia.kibik.org
 virtual_alias_maps = lmdb:/etc/postfix/virtual
 transport_maps = lmdb:/etc/postfix/transport

@@ -17,7 +17,7 @@ services:
       - ./postfix/conf/master.cf:/etc/postfix/master.cf
       - ./postfix/conf/transport:/etc/postfix/transport
       - ./postfix/conf/virtual:/etc/postfix/virtual
-    #  - ./postfix/log:/var/log/postfix
+      - ./logs:/var/log/postfix
 
   db:
     image: mysql:5.7
