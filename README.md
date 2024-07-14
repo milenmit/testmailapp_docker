@@ -1,3 +1,9 @@
+1. Set credentials in env , do NOT  change the name of the db , just host/user/pass and api_key.
+2. Edit the domain name in postfix/conf - main.cf, master.cf, virtual, transport.
+3. Run docker-compose up -d
+4. Send email to anything@domain.
+5. http://domain:5000/emails?to_email=name@domain.com&api_key=test
+
 <p class="has-line-data" data-line-start="0" data-line-end="3">API Documentation<br>
 Authentication<br>
 All endpoints require an api_key parameter to be passed in the URL.</p>
