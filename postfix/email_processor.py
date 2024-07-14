@@ -6,10 +6,11 @@ from dbutils.pooled_db import PooledDB
 from optparse import OptionParser
 from io import StringIO
 from datetime import datetime
+from dotenv import load_dotenv
 import logging
 
 VERSION = "1.3.2"
-output_folder = "/var/log/"
+output_folder = "/tmp"
 email_re = re.compile(r"(^[-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*)@((?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)$|\[(25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}\]$)", re.IGNORECASE)
 email_extract_re = re.compile(r"<(([.0-9a-z_+-=]+)@(([0-9a-z-]+\.)+[0-9a-z]{2,9}))>", re.M | re.S | re.I)
 filename_re = re.compile(r"filename=\"(.+)\"|filename=([^;\n\r\"\']+)", re.I | re.S)
@@ -20,19 +21,42 @@ begin_space_re = re.compile(r"^\s{1,}", re.M)
 logging.basicConfig(level=logging.DEBUG, filename="/var/log/postfix/email_processor.log", filemode="a",
                     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
+#pool = PooledDB(
+#    creator=pymysql,
+#    host='mysql_db',
+#    user='umsbgqa',
+#    password='Secret123!',
+#    database='emails',
+#    autocommit=True,
+#    charset='utf8mb4',
+#    cursorclass=pymysql.cursors.DictCursor,
+#    blocking=True,
+#    maxconnections=5
+#)
+# Load environment variables from .env file
+load_dotenv()
+
 # Database connection pool
 pool = PooledDB(
     creator=pymysql,
-    host='host',
-    user='user',
-    password='pass!',
-    database='emails',
+    host=os.getenv('DB_HOST'),
+    user=os.getenv('DB_USER'),
+    password=os.getenv('DB_PASSWORD'),
+    database=os.getenv('DB_NAME'),
     autocommit=True,
-    charset='utf8mb4',
+    charset=os.getenv('DB_CHARSET'),
     cursorclass=pymysql.cursors.DictCursor,
     blocking=True,
-    maxconnections=5
+    maxconnections=int(os.getenv('DB_MAX_CONNECTIONS', 5))
 )
+# Verify environment variables
+print("DB_HOST:", os.getenv('DB_HOST'))
+print("DB_USER:", os.getenv('DB_USER'))
+print("DB_PASSWORD:", os.getenv('DB_PASSWORD'))
+print("DB_NAME:", os.getenv('DB_NAME'))
+print("DB_CHARSET:", os.getenv('DB_CHARSET'))
+print("DB_MAX_CONNECTIONS:", os.getenv('DB_MAX_CONNECTIONS'))
+print("API_KEY:", os.getenv('API_KEY'))
 
 class MailJson:
     def __init__(self, content=None):
@@ -281,10 +305,10 @@ def main():
 
     insert_email_data(email_data)
 
-    output_file = os.path.join(options.output, "email.json")
-    with open(output_file, "w") as f:
-        f.write(json.dumps(email_data, indent=4))
-        logging.info("Email data written to: %s", output_file)
+    #output_file = os.path.join(options.output, "email.json")
+    #with open(output_file, "w") as f:
+    #    f.write(json.dumps(email_data, indent=4))
+    #    logging.info("Email data written to: %s", output_file)
 
     logging.info("Email processing completed")
 

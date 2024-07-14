@@ -6,3 +6,4 @@ Werkzeug==1.0.1
 MarkupSafe==1.1.1
 Jinja2==2.11.3
 DBUtils==3.1.0
+python-dotenv==1.0.1

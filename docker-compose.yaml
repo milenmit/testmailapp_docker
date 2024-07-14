@@ -4,8 +4,6 @@ services:
     build:
       context: ./postfix
     container_name: postfix
-    #env_file:
-    #  - ./flask_app/.env  # assuming the .env file is shared
     ports:
       - '25:25'
     depends_on:
@@ -18,20 +16,23 @@ services:
       - ./postfix/conf/transport:/etc/postfix/transport
       - ./postfix/conf/virtual:/etc/postfix/virtual
       - ./logs:/var/log/postfix
+      - ./.env:/opt/app/.env
+    env_file:
+      - .env
 
   db:
     image: mysql:5.7
     container_name: mysql_db
     restart: always
-    environment:
-     MYSQL_DATABASE: 'emails'
-     MYSQL_USER: 'umsbgqa'
-     MYSQL_PASSWORD: 'Secret123!'
-     MYSQL_ROOT_PASSWORD: 'Secret123!'
+    env_file:
+      - .env
+    environment:  
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - '3306:3306'
-    expose:
-      - '3306'
     volumes:
       - my-db:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -42,12 +43,15 @@ services:
     build:
       context: ./flask_app
     container_name: flask_app
-    #env_file:
-    #  - ./flask_app/.env
+    env_file:
+      - .env
     ports:
       - '5000:5000'
     depends_on:
       - db
+    volumes:
+      - ./flask_app:/opt/app
+      - ./logs:/logs
     networks:
       - postfix_network
 

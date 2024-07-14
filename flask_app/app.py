@@ -4,30 +4,35 @@ import pymysql
 import logging
 import json
 from datetime import datetime
+from dotenv import load_dotenv
 from functools import wraps
 import html
 import decimal
+import os
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 
 # Database connection pool
 pool = PooledDB(
     creator=pymysql,
-    host='host',
-    user='user',
-    password='pass!',
-    database='emails',
+    host=os.getenv('DB_HOST'),
+    user=os.getenv('DB_USER'),
+    password=os.getenv('DB_PASSWORD'),
+    database=os.getenv('DB_NAME'),
     autocommit=True,
-    charset='utf8mb4',
+    charset=os.getenv('DB_CHARSET'),
     cursorclass=pymysql.cursors.DictCursor,
     blocking=True,
-    maxconnections=5
+    maxconnections=int(os.getenv('DB_MAX_CONNECTIONS', 5))
 )
 
 # Enable logging
 logging.basicConfig(level=logging.DEBUG)
 
-API_KEY = "YourSecretApiKey"  # This should be stored securely, e.g., in environment variables
+API_KEY = os.getenv('API_KEY')  # This should be stored securely, e.g., in environment variables
 
 def require_api_key(f):
     @wraps(f)

@@ -25,7 +25,6 @@ RUN mkdir -p /var/log/postfix && \
     chown -R nobody:nobody /var/log/postfix && \
     chmod +x /opt/app/email_processor.py
    
-RUN mkdir -p /var/www/new
 
 # Make sure your scripts are executable
 RUN chmod +x /opt/app/email_processor.py \
