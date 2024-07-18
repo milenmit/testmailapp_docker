@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Viewer</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 10px 0;
+            background-color: #6a0dad; /* Purple color */
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+        }
+
+        .column {
+            padding: 20px;
+            border-right: 1px solid #ccc;
+            overflow-y: auto;
+        }
+
+        .column:first-child {
+            flex: 0 0 15%; /* Adjust this value to change the width of the first column */
+        }
+
+        .column:nth-child(2) {
+            flex: 0 0 25%; /* Adjust this value to change the width of the second column */
+        }
+
+        .column:nth-child(3) {
+            flex: 0 0 60%; /* Adjust this value to change the width of the third column */
+        }
+
+        .email-list {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .email-item {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            cursor: pointer;
+        }
+
+        .email-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .email-details {
+            margin-top: 20px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        button {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px; /* Rounded corners */
+            margin-bottom: 10px;
+            width: 100%; /* Full width */
+        }
+
+        button {
+            background-color: #4CAF50; /* Green background */
+            color: white; /* White text */
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049; /* Darker green */
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        Email Viewer
+    </div>
+    <div class="container">
+        <div class="column">
+            <button onclick="refreshData()">Search</button>
+            <br><br>
+            <label for="to_email">To Email:</label>
+            <input type="text" id="to_email" placeholder="Search with %">
+            <br><br>
+            <label for="limit">Limit:</label>
+            <input type="number" id="limit" value="50">
+            <br><br>
+            <div id="total_count">Total count of emails: </div>
+            <div id="error_message" style="color: red;"></div>
+        </div>
+        <div class="column">
+            <div class="email-list" id="email_list">
+                <!-- Emails will be listed here -->
+            </div>
+        </div>
+        <div class="column">
+            <div class="email-details" id="email_details">
+                <!-- Email details will be displayed here -->
+            </div>
+        </div>
+    </div>
+    <script>
+        const DEFAULT_DOMAIN = 'sofia.kibik.org';
+
+        async function fetchEmails() {
+            let toEmail = document.getElementById('to_email').value;
+            const limit = document.getElementById('limit').value || 50;
+            const apiKey = 'test';
+
+            if (!toEmail.includes('@')) {
+                toEmail = `${toEmail}@${DEFAULT_DOMAIN}`;
+            }
+
+            const url = `/emails?to_email=${encodeURIComponent(toEmail)}&limit=${limit}&api_key=${apiKey}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('error_message').innerText = '';
+                    displayEmailList(data.emails);
+                } else {
+                    throw new Error('Failed to fetch mails - no match');
+                }
+            } catch (error) {
+                document.getElementById('email_list').innerHTML = '';
+                document.getElementById('error_message').innerText = error.message;
+            }
+        }
+
+        async function fetchEmailStats() {
+            const apiKey = 'test';
+            const url = `/emails/stats?api_key=${apiKey}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('total_count').innerText = `Total count of emails: ${data.total_email_count}`;
+                } else {
+                    throw new Error('Failed to fetch email stats');
+                }
+            } catch (error) {
+                document.getElementById('error_message').innerText = error.message;
+            }
+        }
+
+        function displayEmailList(emails) {
+            const emailList = document.getElementById('email_list');
+            emailList.innerHTML = '';
+
+            emails.forEach(emailData => {
+                const email = emailData.email;
+                const div = document.createElement('div');
+                div.className = 'email-item';
+                div.innerHTML = `<strong>From:</strong> ${email.from_email} <br> <strong>Subject:</strong> ${email.subject} <br> ${emailData.parts[0].content.substring(0, 50)}...`;
+                div.onclick = () => displayEmailDetails(emailData);
+                emailList.appendChild(div);
+            });
+        }
+
+        function displayEmailDetails(emailData) {
+            const email = emailData.email;
+            const parts = emailData.parts;
+
+            const emailDetails = document.getElementById('email_details');
+            emailDetails.innerHTML = `
+                <strong>Email ID:</strong> ${email.id} <br>
+                <strong>To:</strong> ${email.to_email} <br>
+                <strong>From:</strong> ${email.from_email} <br>
+                <strong>Subject:</strong> ${email.subject} <br>
+                <strong>Received:</strong> ${email.received_time} <br>
+                <strong>Content:</strong> ${parts.map(part => part.content).join('<br>')} <br>
+            `;
+        }
+
+        async function refreshData() {
+            await fetchEmails();
+            await fetchEmailStats();
+        }
+
+        // Fetch email stats on page load
+        window.onload = () => {
+            fetchEmailStats();
+            setInterval(() => {
+                if (document.getElementById('to_email').value !== '') {
+                    refreshData();
+                }
+            }, 15000); // Refresh data every 15 seconds
+        };
+    </script>
+</body>
+</html>

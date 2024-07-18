@@ -4,8 +4,11 @@ FROM python:3.9-slim
 WORKDIR /opt/app
 
 # Copy the current directory contents into the container at /opt/app
+RUN mkdir -p templates
+COPY templates/index.html /opt/app
 COPY requirements.txt /opt/app/
 COPY app.py /opt/app/
+
 
 # Install necessary packages
 RUN apt-get update && \

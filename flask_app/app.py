@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from dbutils.pooled_db import PooledDB
 import pymysql
 import logging
@@ -13,7 +13,7 @@ import os
 # Load environment variables from .env file
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='/opt/app/templates', static_url_path='')
 
 # Database connection pool
 pool = PooledDB(
@@ -28,6 +28,11 @@ pool = PooledDB(
     blocking=True,
     maxconnections=int(os.getenv('DB_MAX_CONNECTIONS', 5))
 )
+
+@app.route('/')
+def index():
+    return send_from_directory('/opt/app/templates', 'index.html')
+
 
 # Enable logging
 logging.basicConfig(level=logging.DEBUG)
