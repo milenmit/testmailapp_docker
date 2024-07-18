@@ -190,7 +190,7 @@
                 <strong>From:</strong> ${email.from_email} <br>
                 <strong>Subject:</strong> ${email.subject} <br>
                 <strong>Received:</strong> ${email.received_time} <br>
-                <strong>Content:</strong> ${parts.map(part => part.content).join('<br>')} <br>
+                <strong>Content:</strong> ${parts[0].content} <br>
             `;
         }
 
@@ -206,7 +206,7 @@
                 if (document.getElementById('to_email').value !== '') {
                     refreshData();
                 }
-            }, 15000); // Refresh data every 15 seconds
+            }, 10000); // Refresh data every 10 seconds
         };
     </script>
 </body>
